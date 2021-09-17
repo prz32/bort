@@ -2,6 +2,7 @@ package com.memfault.bort.tokenbucket
 
 import android.content.SharedPreferences
 import com.memfault.bort.BortJson
+import com.memfault.bort.shared.Logger
 import com.memfault.bort.shared.PreferenceKeyProvider
 
 interface TokenBucketStorage {
@@ -12,6 +13,7 @@ interface TokenBucketStorage {
 class RealTokenBucketStorage(
     sharedPreferences: SharedPreferences,
     preferenceKey: String,
+    val tag: String,
 ) : TokenBucketStorage, PreferenceKeyProvider<String>(
     sharedPreferences = sharedPreferences,
     defaultValue = BortJson.encodeToString(StoredTokenBucketMap.serializer(), StoredTokenBucketMap()),
@@ -19,8 +21,11 @@ class RealTokenBucketStorage(
 ) {
     override fun readMap(): StoredTokenBucketMap =
         try {
-            BortJson.decodeFromString(StoredTokenBucketMap.serializer(), super.getValue())
+            val stringValue = super.getValue()
+            Logger.logEvent("RealTokenBucketStorage.readMap", tag, stringValue)
+            BortJson.decodeFromString(StoredTokenBucketMap.serializer(), stringValue)
         } catch (e: Exception) {
+            Logger.logEvent("RealTokenBucketStorage.readMap.exception", tag, e.stackTraceToString())
             StoredTokenBucketMap()
         }
 

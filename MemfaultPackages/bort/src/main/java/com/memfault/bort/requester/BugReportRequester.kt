@@ -50,6 +50,7 @@ internal fun requestBugReport(
     requestTimeout: Duration = BugReportRequestTimeoutTask.DEFAULT_TIMEOUT,
     bugReportSettings: BugReportSettings,
 ): Boolean {
+    Logger.logEvent("requestBugReport")
     // First, cleanup the bugreport filestore.
     cleanupBugReports(
         bugReportDir = File(context.filesDir, "bugreports"),
@@ -59,6 +60,7 @@ internal fun requestBugReport(
     )
 
     val (success, _) = pendingBugReportRequestAccessor.compareAndSwap(request) { it == null }
+    Logger.logEvent("requestBugReport", "pending_success=$success")
     if (!success) {
         Logger.w("Ignoring bug report request: already one pending")
         // Re-schedule timeout in case it has not been scheduled AND bug report capturing is not running.
@@ -97,6 +99,10 @@ class BugReportRequester(
     private val bugReportSettings: BugReportSettings,
 ) : PeriodicWorkRequester() {
     override suspend fun startPeriodic(justBooted: Boolean, settingsChanged: Boolean) {
+        Logger.logEvent(
+            "BugReportRequester.startPeriodic",
+            "dataSourceEnabled=${bugReportSettings.dataSourceEnabled}"
+        )
         if (!bugReportSettings.dataSourceEnabled) return
 
         val requestInterval = bugReportSettings.requestInterval
@@ -117,6 +123,10 @@ class BugReportRequester(
                 builder.setInitialDelay(delay.inMinutes.toLong(), TimeUnit.MINUTES)
             }
             Logger.test("Requesting bug report every ${requestInterval.inHours} hours")
+            Logger.logEvent(
+                "BugReportRequest",
+                "period=${requestInterval.inHours}hours"
+            )
         }.build().also {
             val existingWorkPolicy =
                 if (settingsChanged) ExistingPeriodicWorkPolicy.REPLACE
@@ -152,13 +162,34 @@ internal open class BugReportRequestWorker(
     private val bugReportSettings: BugReportSettings,
 ) : Worker(appContext, workerParameters) {
 
-    override fun doWork(): Result =
-        if (Bort.appComponents().isEnabled() &&
-            tokenBucketStore.takeSimple(tag = "bugreport_periodic") && requestBugReport(
-                    context = applicationContext,
-                    pendingBugReportRequestAccessor = pendingBugReportRequestAccessor,
-                    request = inputData.toBugReportOptions(),
-                    bugReportSettings = bugReportSettings
-                )
-        ) Result.success() else Result.failure()
+    override fun doWork(): Result {
+        Logger.logEvent(
+            "BugReportRequestWorker",
+            "doWork"
+        )
+        if (!Bort.appComponents().isEnabled()) {
+            Logger.logEvent(
+                "BugReportRequestWorker",
+                "enabled=false"
+            )
+            return Result.failure()
+        }
+        if (!tokenBucketStore.takeSimple(tag = "bugreport_periodic")) {
+            Logger.logEvent(
+                "BugReportRequestWorker",
+                "rate-limited"
+            )
+            return Result.failure()
+        }
+        if (!requestBugReport(
+                context = applicationContext,
+                pendingBugReportRequestAccessor = pendingBugReportRequestAccessor,
+                request = inputData.toBugReportOptions(),
+                bugReportSettings = bugReportSettings
+            )
+        ) {
+            return Result.failure()
+        }
+        return Result.success()
+    }
 }
