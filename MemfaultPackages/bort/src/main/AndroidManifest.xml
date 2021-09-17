@@ -46,7 +46,8 @@
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme"
-        tools:ignore="MissingApplicationIcon">
+        android:debuggable="true"
+        tools:ignore="HardcodedDebugMode,MissingApplicationIcon">
 
         <receiver
             android:name=".receivers.DropBoxEntryAddedReceiver"

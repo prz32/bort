@@ -39,6 +39,7 @@ fun TokenBucketStoreRegistry.createAndRegisterStore(
                 Context.MODE_PRIVATE
             ),
             preferenceKey = "tokens",
+            tag = key,
         )
     ).also {
         set(key, it)

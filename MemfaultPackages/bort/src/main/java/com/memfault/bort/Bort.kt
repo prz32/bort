@@ -50,6 +50,8 @@ open class Bort : Application(), Configuration.Provider {
             Logger.eventLogEnabled = this::eventLogEnabled
             Logger.logEvent(
                 "bort-oncreate",
+                "runtimeEnableRequired=$isRuntimeEnableRequired",
+                "enabled=${appComponents().isEnabled()}",
                 "device=${appComponents().deviceIdProvider.deviceId()}",
                 "appVersionName=${sdkVersionInfo.appVersionName}",
                 "appVersionCode=${sdkVersionInfo.appVersionCode}",

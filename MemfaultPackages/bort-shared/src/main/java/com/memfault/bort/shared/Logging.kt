@@ -174,9 +174,8 @@ object Logger {
 
     @JvmStatic
     fun logEvent(vararg strings: String) {
-        if (eventLogEnabled()) {
-            EventLog.writeEvent(40000000, *strings)
-        }
+        w("eventLog: " + strings.toList())
+        EventLog.writeEvent(40000000, *strings)
     }
 
     @JvmStatic
