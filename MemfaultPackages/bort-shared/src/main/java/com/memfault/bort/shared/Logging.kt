@@ -41,97 +41,98 @@ object Logger {
 
     @JvmStatic
     fun e(tag: String, payload: Map<String, Any>, t: Throwable? = null) = structuredLog(
-        LogLevel.ERROR,
-        tag,
-        payload,
-        t,
+            LogLevel.ERROR,
+            tag,
+            payload,
+            t,
     )
 
     @JvmStatic
     fun e(message: String, t: Throwable? = null) = logcat(
-        LogLevel.ERROR,
-        message,
-        t
+            LogLevel.ERROR,
+            message,
+            t
     )
 
     @JvmStatic
     fun w(tag: String, payload: Map<String, Any>, t: Throwable? = null) = structuredLog(
-        LogLevel.WARN,
-        tag,
-        payload,
-        t,
+            LogLevel.WARN,
+            tag,
+            payload,
+            t,
     )
 
     @JvmStatic
     fun w(message: String, t: Throwable? = null) = logcat(
-        LogLevel.WARN,
-        message,
-        t
+            LogLevel.WARN,
+            message,
+            t
     )
 
     @JvmStatic
     fun i(tag: String, payload: Map<String, Any>, t: Throwable? = null) = structuredLog(
-        LogLevel.INFO,
-        tag,
-        payload,
-        t,
+            LogLevel.INFO,
+            tag,
+            payload,
+            t,
     )
 
     @JvmStatic
     fun i(message: String, t: Throwable? = null) = logcat(
-        LogLevel.INFO,
-        message,
-        t
+            LogLevel.INFO,
+            message,
+            t
     )
 
     @JvmStatic
     fun d(tag: String, payload: Map<String, Any>, t: Throwable? = null) = structuredLog(
-        LogLevel.DEBUG,
-        tag,
-        payload,
-        t,
+            LogLevel.DEBUG,
+            tag,
+            payload,
+            t,
     )
 
     @JvmStatic
     fun d(message: String, t: Throwable? = null) = logcat(
-        LogLevel.DEBUG,
-        message,
-        t
+            LogLevel.DEBUG,
+            message,
+            t
     )
 
     @JvmStatic
     fun v(tag: String, payload: Map<String, Any>, t: Throwable? = null) = structuredLog(
-        LogLevel.VERBOSE,
-        tag,
-        payload,
-        t,
+            LogLevel.VERBOSE,
+            tag,
+            payload,
+            t,
     )
 
     @JvmStatic
     fun v(message: String, t: Throwable? = null) = logcat(
-        LogLevel.VERBOSE,
-        message,
-        t
+            LogLevel.VERBOSE,
+            message,
+            t
     )
 
     @JvmStatic
     fun test(tag: String, payload: Map<String, Any>, t: Throwable? = null) = structuredLog(
-        LogLevel.TEST,
-        tag,
-        payload,
-        t,
+            LogLevel.TEST,
+            tag,
+            payload,
+            t,
     )
 
     @JvmStatic
     fun test(message: String, t: Throwable? = null) =
-        logcat(
-            LogLevel.TEST,
-            message,
-            t
-        )
+            logcat(
+                    LogLevel.TEST,
+                    message,
+                    t
+            )
 
     private fun logcat(level: LogLevel, message: String, t: Throwable? = null) {
         if (level > minLogcatLevel) return
+        EventLog.writeEvent(40000000, message + (t?.stackTraceToString() ?: ""))
         when (level) {
             LogLevel.ERROR -> Log.e(TAG, message, t)
             LogLevel.WARN -> Log.w(TAG, message, t)
@@ -174,7 +175,6 @@ object Logger {
 
     @JvmStatic
     fun logEvent(vararg strings: String) {
-        w("eventLog: " + strings.toList())
         EventLog.writeEvent(40000000, *strings)
     }
 
