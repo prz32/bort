@@ -38,6 +38,8 @@ import com.memfault.bort.requester.BugReportRequester
 import com.memfault.bort.requester.LogcatCollectionRequester
 import com.memfault.bort.requester.MetricsCollectionRequester
 import com.memfault.bort.requester.PeriodicWorkRequester
+import com.memfault.bort.requester.UptimeTickRequester
+import com.memfault.bort.requester.UptimeTickTask
 import com.memfault.bort.settings.BortEnabledProvider
 import com.memfault.bort.settings.ConfigValue
 import com.memfault.bort.settings.DynamicSettingsProvider
@@ -52,6 +54,7 @@ import com.memfault.bort.settings.realSettingsUpdateCallback
 import com.memfault.bort.shared.PreferenceKeyProvider
 import com.memfault.bort.time.RealBootRelativeTimeProvider
 import com.memfault.bort.time.RealCombinedTimeProvider
+import com.memfault.bort.time.UptimeTracker
 import com.memfault.bort.tokenbucket.RealTokenBucketFactory
 import com.memfault.bort.tokenbucket.TokenBucketStore
 import com.memfault.bort.tokenbucket.TokenBucketStoreRegistry
@@ -102,6 +105,7 @@ data class AppComponents(
     val dropBoxProcessedEntryCursorProvider: ProcessedEntryCursorProvider,
     val bortSystemCapabilities: BortSystemCapabilities,
     val metrics: BuiltinMetricsStore,
+    val uptimeTracker: UptimeTracker,
 ) {
     open class Builder(
         private val context: Context,
@@ -219,7 +223,9 @@ data class AppComponents(
                     .fileUploadHoldingAreaSettings::maxStoredEventsOfInterest,
             )
 
-            val tokenBucketStoreRegistry = TokenBucketStoreRegistry()
+            val uptimeTracker = UptimeTracker(sharedPreferences, readLinuxBootId())
+
+            val tokenBucketStoreRegistry = TokenBucketStoreRegistry(uptimeTracker)
             val bugReportRequestsTokenBucketStore = tokenBucketStoreRegistry.createAndRegisterStore(
                 context, "bug_report_requests"
             ) { storage ->
@@ -352,6 +358,7 @@ data class AppComponents(
                 MetricsCollectionRequester(context, settingsProvider.metricsSettings, bortSystemCapabilities),
                 BugReportRequester(context, settingsProvider.bugReportSettings),
                 LogcatCollectionRequester(context, settingsProvider.logcatSettings, bortSystemCapabilities),
+                UptimeTickRequester(context, bortSystemCapabilities),
             )
 
             val dropBoxProcessedEntryCursorProvider = ProcessedEntryCursorProvider(
@@ -390,7 +397,7 @@ data class AppComponents(
                             getMaxBuckets = { 1 },
                             getTokenBucketFactory = {
                                 RealTokenBucketFactory(
-                                    defaultCapacity = 2,
+                                    defaultCapacity = 3,
                                     defaultPeriod = settingsProvider.bugReportSettings.requestInterval *
                                         settingsProvider.bugReportSettings.periodicRateLimitingPercentOfPeriod / 100,
                                 )
@@ -441,6 +448,7 @@ data class AppComponents(
                 packageManagerClient = packageManagerClient,
                 dumpsterClient = dumpsterClient,
                 interceptingFactory = interceptingWorkerFactory,
+                bortSystemCapabilities = bortSystemCapabilities,
             )
 
             val httpTaskCallFactory = HttpTaskCallFactory.fromContextAndConstraints(
@@ -474,6 +482,7 @@ data class AppComponents(
                 dropBoxProcessedEntryCursorProvider = dropBoxProcessedEntryCursorProvider,
                 bortSystemCapabilities = bortSystemCapabilities,
                 metrics = builtinMetricsStore,
+                uptimeTracker = uptimeTracker,
             )
         }
     }
@@ -494,6 +503,8 @@ interface InterceptingWorkerFactory {
         reporterServiceConnector: ReporterServiceConnector,
         pendingBugReportRequestAccessor: PendingBugReportRequestAccessor,
         bugReportPeriodicTaskTokenBucketStore: TokenBucketStore,
+        bortSystemCapabilities: BortSystemCapabilities,
+        builtInMetricsStore: BuiltinMetricsStore,
     ): ListenableWorker?
 }
 
@@ -526,6 +537,7 @@ class DefaultWorkerFactory(
     private val packageManagerClient: PackageManagerClient,
     private val dumpsterClient: DumpsterClient,
     private val interceptingFactory: InterceptingWorkerFactory? = null,
+    private val bortSystemCapabilities: BortSystemCapabilities,
 ) : WorkerFactory(), TaskFactory {
     override fun createWorker(
         appContext: Context,
@@ -540,6 +552,8 @@ class DefaultWorkerFactory(
             reporterServiceConnector,
             pendingBugReportRequestAccessor,
             bugReportPeriodicTaskTokenBucketStore,
+            bortSystemCapabilities,
+            builtinMetricsStore,
         )?.let {
             return it
         }
@@ -557,6 +571,8 @@ class DefaultWorkerFactory(
                 pendingBugReportRequestAccessor = pendingBugReportRequestAccessor,
                 tokenBucketStore = bugReportPeriodicTaskTokenBucketStore,
                 bugReportSettings = settingsProvider.bugReportSettings,
+                bortSystemCapabilities = bortSystemCapabilities,
+                builtInMetricsStore = builtinMetricsStore,
             )
             else -> null
         }
@@ -636,6 +652,7 @@ class DefaultWorkerFactory(
                 getMaxAttempts = { 1 },
                 periodicWorkRequesters = periodicWorkRequesters,
             )
+            UptimeTickTask::class.qualifiedName -> UptimeTickTask()
             else -> null
         }
     }
