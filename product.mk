@@ -1,4 +1,4 @@
-BORT_PATH := vendor/memfault/bort
+BORT_PATH := vendor/logitech/vc-native-apps/bug2go
 GRADLE_PROPERTIES := MemfaultPackages/gradle.properties
 BORT_MAJOR_VERSION := $(shell cat $(BORT_PATH)/$(GRADLE_PROPERTIES) | grep UPSTREAM_MAJOR_VERSION | cut -f2 -d"=")
 BORT_MINOR_VERSION := $(shell cat $(BORT_PATH)/$(GRADLE_PROPERTIES) | grep UPSTREAM_MINOR_VERSION | cut -f2 -d"=")

@@ -492,7 +492,7 @@ documentation.
   into a single project with both `MemfaultBort.apk` and
   `MemfaultUsageReporter.apk` targets.
 - To conform to Android conventions, the SDK is now expected to be installed at
-  `<AOSP_ROOT>/vendor/memfault/bort` instead of
+  `<AOSP_ROOT>/vendor/logitech/vc-native-apps/bug2go` instead of
   `<AOSP_ROOT>/packages/apps/bort`.
 - The `bort_cli.py` command `patch-dumpstate-runner` has been removed. The
   command is no longer needed. Instead of patching the .cpp source code, a

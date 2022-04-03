@@ -7,7 +7,7 @@ index 7c5f6ed..9a54868 100644
  PRODUCT_COPY_FILES += device/google/cuttlefish/dtb.img:dtb.img
  BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
 +
-+include vendor/memfault/bort/BoardConfig.mk
++include vendor/logitech/vc-native-apps/bug2go/BoardConfig.mk
 diff --git a/shared/device.mk b/shared/device.mk
 index 72e27d7..3e1cbf8 100644
 --- a/shared/device.mk
@@ -27,4 +27,4 @@ index 72e27d7..3e1cbf8 100644
  # with HW VSYNC
  PRODUCT_DEFAULT_PROPERTY_OVERRIDES += ro.surface_flinger.running_without_sync_framework=true
 +
-+include vendor/memfault/bort/product.mk
++include vendor/logitech/vc-native-apps/bug2go/product.mk

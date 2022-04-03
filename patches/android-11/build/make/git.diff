@@ -21,7 +21,7 @@ index 22436e6..a1dae7e 100644
  $(call inherit-product, frameworks/base/data/sounds/AllAudio.mk)
 
 +# Memfault Bort
-+$(call inherit-product, vendor/memfault/bort/product.mk)
++$(call inherit-product, vendor/logitech/vc-native-apps/bug2go/product.mk)
 +
  PRODUCT_PROPERTY_OVERRIDES += \
      ro.config.ringtone=Ring_Synth_04.ogg \
@@ -35,7 +35,7 @@ index a787707..87c2167 100644
  $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
 +# Memfault Bort
-+$(call inherit-product, vendor/memfault/bort/product.mk)
++$(call inherit-product, vendor/logitech/vc-native-apps/bug2go/product.mk)
 +
  # Shared java libs
  PRODUCT_PACKAGES += \

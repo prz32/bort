@@ -22,7 +22,7 @@ index 46c8865a4..1bcaace38 100644
  BOARD_SEPOLICY_DIRS += build/target/board/generic/sepolicy
 +
 +TARGET_BOOTLOADER_BOARD_NAME := generic-arm64
-+include vendor/memfault/bort/BoardConfig.mk
++include vendor/logitech/vc-native-apps/bug2go/BoardConfig.mk
 +
 diff --git a/target/board/generic_x86_64/BoardConfig.mk b/target/board/generic_x86_64/BoardConfig.mk
 index 883dd2e5c..f6ca5c6ac 100755
@@ -34,7 +34,7 @@ index 883dd2e5c..f6ca5c6ac 100755
          build/target/board/generic_x86/sepolicy
 +
 +TARGET_BOOTLOADER_BOARD_NAME := generic-x86_64
-+include vendor/memfault/bort/BoardConfig.mk
++include vendor/logitech/vc-native-apps/bug2go/BoardConfig.mk
 +
 diff --git a/target/product/base.mk b/target/product/base.mk
 index 9e3862379..9a433ba9c 100644
@@ -60,5 +60,5 @@ index 0e1e581cd..ea0e792d0 100644
 +# Enforce privapp-permissions whitelist.
 +PRODUCT_PROPERTY_OVERRIDES += ro.control_privapp_permissions=enforce
 +
-+include vendor/memfault/bort/product.mk
++include vendor/logitech/vc-native-apps/bug2go/product.mk
 +

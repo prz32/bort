@@ -9,7 +9,7 @@ index f13c9db4d1..91c470d201 100644
  $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
 +# Memfault Bort
-+$(call inherit-product, vendor/memfault/bort/product.mk)
++$(call inherit-product, vendor/logitech/vc-native-apps/bug2go/product.mk)
 +
  # Shared java libs
  PRODUCT_PACKAGES += \

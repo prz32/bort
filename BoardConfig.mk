@@ -1,6 +1,6 @@
 ifeq ($(BORT_BOARDCONFIG_LOADED),)
   BORT_BOARDCONFIG_LOADED := 1
-  BORT_PATH := vendor/memfault/bort
+  BORT_PATH := vendor/logitech/vc-native-apps/bug2go
   BOARD_SEPOLICY_DIRS += $(BORT_PATH)/sepolicy
   ifneq (,$(wildcard $(BORT_PATH)/sepolicy/vendor-$(PLATFORM_SDK_VERSION)))
     BOARD_SEPOLICY_DIRS += $(BORT_PATH)/sepolicy/vendor-$(PLATFORM_SDK_VERSION)
